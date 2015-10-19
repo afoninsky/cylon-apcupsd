@@ -23,8 +23,8 @@
   "scripts": {
     "coveralls": "istanbul cover _mocha --report lcovonly -- -R spec && cat ./coverage/lcov.info | coveralls && rm -rf ./coverage",
     "pretest": "jshint index.js",
-    "test1": "istanbul cover _mocha --",
-    "test": "mocha *.spec.js"
+    "debug": "mocha test/helper.js test/lib.spec.js",
+    "test": "mocha test/helper.js test/*.spec.js"
   },
   "repository": {
     "type": "git",
