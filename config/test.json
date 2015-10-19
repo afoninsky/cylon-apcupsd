@@ -1,0 +1,4 @@
+{
+  "apcaccessBinary": "./test/apcaccess",
+  "apcupsdEventFile": "./test/apcupsd.events"
+}

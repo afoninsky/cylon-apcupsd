@@ -1,0 +1,7 @@
+{
+  "connection": "direct",
+  "apcaccessBinary": "/sbin/apcaccess",
+  "apcupsdEventFile": "/var/log/apcupsd.events",
+  "pollInterval": 5000,
+  "api": {}
+}
