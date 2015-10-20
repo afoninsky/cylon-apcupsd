@@ -1,13 +1,14 @@
 {
   "name": "cylon-apcupsd",
-  "description": "Speac with apcupsd daemon on his language",
-  "version": "0.0.1",
+  "description": "Speak with apcupsd daemon on his language",
+  "version": "1.0.0",
   "devDependencies": {
     "chai": "3.0.0",
     "coveralls": "^2.11.4",
     "istanbul": "^0.4.0",
     "jshint": "^2.8.0",
     "mocha": "2.2.5",
+    "cylon-api-http": "^0.4.0",
     "pre-git": "^0.6.2"
   },
   "dependencies": {
@@ -15,16 +16,15 @@
     "child-process-promise": "^1.1.0",
     "config": "^1.16.0",
     "cylon": "1.2.0",
-    "cylon-api-http": "^0.4.0",
     "lodash": "^3.10.1",
     "tail": "^0.4.0"
   },
   "main": "index.js",
   "scripts": {
     "coveralls": "istanbul cover _mocha --report lcovonly -- -R spec && cat ./coverage/lcov.info | coveralls && rm -rf ./coverage",
-    "pretest": "jshint index.js",
-    "debug": "mocha test/helper.js test/lib.spec.js",
-    "test": "mocha test/helper.js test/*.spec.js"
+    "pretest": "jshint lib",
+    "test": "mocha test/helper.js test/*.spec.js",
+    "coverage": "istanbul cover _mocha -- test/helper.js test/*.spec.js"
   },
   "repository": {
     "type": "git",

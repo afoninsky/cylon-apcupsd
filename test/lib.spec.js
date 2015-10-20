@@ -7,11 +7,35 @@ var Cylon = require('cylon'),
     _ = require('lodash'),
     config = require('config');
 
+var _switchBin;
+function switchBin (adaptor, value) {
+  if(value) {
+    _switchBin = adaptor.cfg.apcaccessBinary;
+    adaptor.cfg.apcaccessBinary = value;
+  } else {
+    adaptor.cfg.apcaccessBinary = _switchBin;
+  }
+}
+
 describe('Adaptor', function() {
-  var adaptor = new Adaptor({ robot: {} });
+  var adaptor = new Adaptor();
 
   it('is a Cylon adaptor', function() {
     expect(adaptor).to.be.an.instanceOf(Cylon.Adaptor);
+  });
+
+  it('connect to wrong place', function(done) {
+    var apcupsdEventFile = adaptor.cfg.apcupsdEventFile;
+    adaptor.cfg.apcupsdEventFile = null;
+    adaptor.connect(function (err) {
+      expect(err).to.be.instanceof(Error);
+      adaptor.cfg.apcupsdEventFile = apcupsdEventFile;
+      done();
+    });
+  });
+
+  it('connect', function(done) {
+    adaptor.connect(done);
   });
 
   it('ensure robot info filled after connect', function (done) {
@@ -49,7 +73,6 @@ describe('Adaptor', function() {
 
   it('test states change', function (done) {
     var states = _.clone(adaptor.states),
-        oldBin = adaptor.cfg.apcaccessBinary,
         flag = 0;
 
     var expectedStates = {
@@ -62,7 +85,7 @@ describe('Adaptor', function() {
     expect(states.charge).to.equal(100);
     expect(states.timeleft).to.equal(43);
 
-    adaptor.cfg.apcaccessBinary = './test/apcaccess.updated';
+    switchBin(adaptor, './test/apcaccess.updated');
 
     function ensureExact (event) {
       return function (current, prev) {
@@ -72,9 +95,9 @@ describe('Adaptor', function() {
       };
     }
 
-    adaptor.once('power', ensureExact('power'));
-    adaptor.once('charge', ensureExact('charge'));
-    adaptor.once('timeleft', ensureExact('timeleft'));
+    adaptor.events.forEach(function (event) {
+      adaptor.once(event, ensureExact(event));
+    });
 
     adaptor.checkEvents().then(function () {
 
@@ -82,11 +105,16 @@ describe('Adaptor', function() {
         expect(adaptor.states[k]).to.equal(v);
       });
 
-      adaptor.cfg.apcaccessBinary = oldBin;
+      switchBin(adaptor);
       if(++flag === 4) { flag = 0; done(); }
     }).catch(done);
 
   });
+
+  it('disconnect', function(done) {
+    adaptor.disconnect(done);
+  });
+
 
   after('empty log', function () {
     fs.truncateSync(config.apcupsdEventFile, 0);
@@ -95,25 +123,38 @@ describe('Adaptor', function() {
 });
 
 
-// describe('Driver', function() {
-//   var driver = new Driver({
-//     connection: new Adaptor({ robot: {} })
-//   });
-//
-//   it('is a Cylon driver', function() {
-//     expect(driver).to.be.an.instanceOf(Cylon.Driver);
-//   });
-//
-//   it('get device info');
-//
-//   it('get current power');
-//
-//   it('get current charge');
-//
-//   it('get time left');
-//
-//   it('handle power off');
-//
-//   it('handle power on');
-//
-// });
+describe('Driver', function() {
+  var adaptor = new Adaptor(),
+  driver = new Driver({
+    connection: adaptor
+  });
+
+  it('is a Cylon driver', function() {
+    expect(driver).to.be.an.instanceOf(Cylon.Driver);
+  });
+
+  it('start driver', function(done) {
+    driver.start(done);
+  });
+
+  _.each(driver.commands, function (func, name) {
+    func = func.bind(driver);
+    it('test command ' + name, function(done) {
+      func(done);
+    });
+  });
+
+  _.each(driver.events, function (name) {
+    it('test event ' + name, function(done) {
+      driver.once(name, function () {
+        done();
+      });
+      adaptor.emit(name);
+    });
+  });
+
+  it('stop driver', function(done) {
+    driver.halt(done);
+  });
+
+});
