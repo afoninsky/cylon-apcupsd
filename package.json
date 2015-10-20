@@ -1,7 +1,7 @@
 {
   "name": "cylon-apcupsd",
   "description": "Speak with apcupsd daemon on his language",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "devDependencies": {
     "chai": "3.0.0",
     "coveralls": "^2.11.4",
@@ -21,7 +21,7 @@
   },
   "main": "index.js",
   "scripts": {
-    "coveralls": "istanbul cover _mocha --report lcovonly -- -R spec && cat ./coverage/lcov.info | coveralls && rm -rf ./coverage",
+    "coveralls": "istanbul cover _mocha --report lcovonly -- -R spec test/helper.js test/*.spec.js && cat ./coverage/lcov.info | coveralls && rm -rf ./coverage",
     "pretest": "jshint lib",
     "test": "mocha test/helper.js test/*.spec.js",
     "coverage": "istanbul cover _mocha -- test/helper.js test/*.spec.js"
